@@ -23,7 +23,7 @@ let modifiedCsvJson = [];
  */
 const config = {
   inputFile: './input/input-file.csv',
-  outputFile: './output/output-file-to-be-created.csv',
+  outputFile: './output/eBay-Report.csv',
 };
 
 /**
@@ -38,28 +38,44 @@ const csvWriter = createCsvWriter({
   path: config.outputFile,
   header: [
     {
-      id: 'Year',
-      title: 'Year'
+      id: 'Ship To Phone',
+      title: 'Phone'
     },
     {
-      id: 'Artist',
-      title: 'Artist'
+      id: 'Buyer Name',
+      title: 'First Name'
     },
     {
-      id: 'Album',
-      title: 'Album Name'
+      id: '',
+      title: 'Last Name'
     },
     {
-      id: 'Label',
-      title: 'Label'
+      id: '',
+      title: 'Email'
     },
     {
-      id: 'Certified Units',
-      title: 'Certified Units'
+      id: 'Item Title',
+      title: 'Address'
     },
     {
-      id: 'Certification',
-      title: 'Certification'
+      id: '',
+      title: 'City'
+    },
+    {
+      id: '',
+      title: 'State'
+    },
+    {
+      id: '',
+      title: 'Zip'
+    },
+    {
+      id: '',
+      title: 'Company Name'
+    },
+    {
+      id: '',
+      title: 'Tags'
     },
   ],
   alwaysQuote: true,
@@ -90,8 +106,9 @@ function init() {
 function initFunctions() {
   console.log('Initiating script functionality...');
 
-  modifyCertifiedUnits();
-  filterAlbumYears();
+  modifyDescription();
+  modifyNames();
+  filterCountry();
 
   /**
    * Once everything is finished, write to file.
@@ -100,14 +117,16 @@ function initFunctions() {
 }
 
 /**
- * Function that will remove items that don't match our desired years.
+ * Function that will remove items that don't match our desired country.
  */
-function filterAlbumYears() {
-  console.log('Removing items released in 2015');
+function filterCountry() {
+  console.log('Removing items shipped to different countries');
 
   modifiedCsvJson = modifiedCsvJson.filter((item) => {
-    return item['Year'] === '2015' ? null : item
+    
+    return item['Ship To Country'] !== 'United States' ? false : item
   });
+
 
   console.log('...Done');
 }
@@ -115,14 +134,27 @@ function filterAlbumYears() {
 /**
  * Removes the parenthesis from the 'Certified Units' field.
  */
-function modifyCertifiedUnits() {
-  console.log('Removing parenthesis from Units Sold...')
-
+function modifyDescription() {
+  console.log('Removing extra letters in description...')
   modifiedCsvJson = modifiedCsvJson.map((item) => {
     const returnedItem = item
-    const itemKey = 'Certified Units'
+    const itemKey = 'Item Title'
 
-    returnedItem[itemKey] = item[itemKey].replace(/[{()}]/g, '');
+    returnedItem[itemKey] = item[itemKey].substr(0, 23);
+
+    return returnedItem
+  })
+
+  console.log('...Done');
+}
+
+function modifyNames() {
+  console.log('Removing last name...')
+  modifiedCsvJson = modifiedCsvJson.map((item) => {
+    const returnedItem = item
+    const itemKey = 'Buyer Name'
+
+    returnedItem[itemKey] = item[itemKey].split(' ').slice(0, -1).join(' ');
 
     return returnedItem
   })
