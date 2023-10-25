@@ -149,14 +149,27 @@ function modifyDescription() {
 }
 
 function modifyNames() {
-  console.log('Removing last name...')
+  console.log('Removing last name and duplicates...')
+
+  const uniqueNames = new Set();
+
   modifiedCsvJson = modifiedCsvJson.map((item) => {
     const returnedItem = item
-    const itemKey = 'Buyer Name'
+    const itemKey = 'Buyer Name';
+    const fullName = item[itemKey];
 
-    returnedItem[itemKey] = item[itemKey].split(' ').slice(0, -1).join(' ');
+    // Check for duplicates
+    if (!uniqueNames.has(fullName)) {
+      uniqueNames.add(fullName);
 
-    return returnedItem
+      // Remove last name
+      const modifiedName = fullName.split(' ').slice(0, -1).join(' ');
+      returnedItem[itemKey] = modifiedName;
+    } else {
+      returnedItem[itemKey] = null;
+    }
+
+    return returnedItem;
   })
 
   console.log('...Done');
